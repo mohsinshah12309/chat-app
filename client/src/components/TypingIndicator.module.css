@@ -1,0 +1,22 @@
+.wrap {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: var(--text-muted);
+  padding-left: 4px;
+  animation: riseIn 0.2s ease;
+}
+
+.bars { display: flex; align-items: flex-end; gap: 2px; height: 12px; }
+
+.bar { width: 3px; background: var(--accent2); border-radius: 2px; animation: wave 0.9s ease-in-out infinite; }
+.bar:nth-child(1) { height: 40%; animation-delay: 0s; }
+.bar:nth-child(2) { height: 100%; animation-delay: 0.15s; }
+.bar:nth-child(3) { height: 60%; animation-delay: 0.3s; }
+
+@keyframes wave {
+  0%, 100% { transform: scaleY(0.4); }
+  50% { transform: scaleY(1); }
+}

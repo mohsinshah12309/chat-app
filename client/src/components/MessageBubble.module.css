@@ -1,0 +1,188 @@
+.row {
+  display: flex;
+  animation: riseIn 0.2s ease;
+}
+.rowOwn {
+  justify-content: flex-end;
+}
+
+.bubbleWrap {
+  display: flex;
+  flex-direction: column;
+  max-width: 65%;
+}
+.rowOwn .bubbleWrap {
+  align-items: flex-end;
+}
+
+.bubble {
+  position: relative;
+  padding: 8px 12px;
+  border-radius: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  font-size: 14px;
+  line-height: 1.4;
+}
+
+.bubbleOther {
+  background: var(--other-bubble);
+  border: 1px solid var(--border);
+  border-top-left-radius: 4px;
+}
+.bubbleOwn {
+  background: var(--own-bubble);
+  color: #1a1005;
+  border-top-right-radius: 4px;
+}
+
+.sender {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--accent2);
+}
+.text {
+  word-break: break-word;
+}
+
+
+.replyPreview {
+  border-left: 2px solid currentColor;
+  opacity: 0.75;
+  padding: 2px 8px;
+  margin-bottom: 2px;
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  font-size: 12px;
+}
+.replyAuthor {
+  font-family: var(--font-mono);
+  font-weight: 600;
+}
+.replyText {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 220px;
+}
+
+.hoverActions {
+  position: absolute;
+  top: -14px;
+  right: 6px;
+  display: flex;
+  gap: 4px;
+  opacity: 0;
+  transition: opacity 0.15s ease;
+}
+.rowOwn .hoverActions {
+  right: auto;
+  left: 6px;
+}
+.bubble:hover .hoverActions {
+  opacity: 1;
+}
+
+.actionBtn {
+  background: var(--surface-raised);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  font-size: 11px;
+  padding: 2px 6px;
+  cursor: pointer;
+  color: var(--text);
+}
+.actionBtn:hover {
+  background: var(--accent-soft);
+  color: var(--accent);
+}
+
+.reactionsBar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin-top: 3px;
+}
+.reactionsBarOwn {
+  justify-content: flex-end;
+}
+
+.reactionPill {
+  background: var(--surface-raised);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  font-size: 12px;
+  padding: 1px 7px;
+  cursor: pointer;
+  line-height: 1.6;
+}
+.reactionPill:hover {
+  border-color: var(--accent);
+}
+.reactionPillActive {
+  background: var(--accent-soft);
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+/* Room chat uses touch devices too — same widening as the DM view */
+@media (max-width: 900px) {
+  .bubbleWrap {
+    max-width: 80%;
+  }
+}
+@media (max-width: 480px) {
+  .bubbleWrap {
+    max-width: 86%;
+  }
+  .bubble {
+    font-size: 13px;
+  }
+  .replyText {
+    max-width: 160px;
+  }
+  /* On touch devices there's no hover — always show react/reply so they're reachable */
+  .hoverActions {
+    opacity: 1;
+    position: static;
+    margin-top: 4px;
+    justify-content: flex-end;
+  }
+  .rowOwn .hoverActions {
+    justify-content: flex-end;
+  }
+}
+
+/* Add to MessageBubble.module.css. Replace the existing standalone .time
+   rule with this — .time now sits inside .metaRow alongside the status
+   icon instead of being aligned on its own. */
+
+.metaRow {
+  align-self: flex-end;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-top: 2px;
+}
+
+.time {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  opacity: 0.6;
+}
+
+.status {
+  font-size: 10px;
+  opacity: 0.7;
+}
+
+.bubblePending {
+  opacity: 0.65;
+}
+
+.actionBtn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}

@@ -1,0 +1,3 @@
+.wrap { display: flex; align-items: center; gap: 10px; color: var(--text-muted); font-family: var(--font-mono); font-size: 11px; padding: 4px 0; }
+.line { flex: 1; height: 1px; background: var(--border); }
+.text { white-space: nowrap; }

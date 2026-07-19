@@ -1,0 +1,102 @@
+.wrap {
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  background:
+    radial-gradient(circle at 20% 20%, rgba(255,140,66,0.08), transparent 40%),
+    radial-gradient(circle at 80% 80%, rgba(79,209,197,0.08), transparent 40%),
+    var(--bg);
+}
+
+.card {
+  width: 100%;
+  max-width: 420px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 32px 28px;
+  animation: riseIn 0.4s ease;
+}
+
+.brand { display: flex; align-items: center; gap: 8px; margin-bottom: 24px; }
+
+.pulseDot {
+  width: 8px; height: 8px; border-radius: 50%;
+  background: var(--accent2);
+  animation: pulse 1.6s ease-in-out infinite;
+}
+
+.brandText { font-family: var(--font-mono); font-size: 12px; letter-spacing: 2px; color: var(--text-muted); }
+
+.title { font-size: 26px; font-weight: 700; margin: 0 0 6px; }
+.subtitle { color: var(--text-muted); font-size: 14px; margin: 0 0 24px; }
+
+.form { display: flex; flex-direction: column; gap: 8px; }
+
+.label {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: var(--text-muted);
+  margin-top: 12px;
+}
+
+.input {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 12px 14px;
+  color: var(--text);
+  font-family: var(--font-display);
+  font-size: 15px;
+  outline: none;
+  transition: border-color 0.2s;
+}
+.input:focus { border-color: var(--accent); }
+
+.channelList { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+
+.channel {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 10px 6px;
+  cursor: pointer;
+  color: var(--text-muted);
+  transition: border-color 0.2s, color 0.2s, transform 0.15s;
+}
+.channel:hover { transform: translateY(-1px); color: var(--text); }
+
+.channelActive {
+  border-color: var(--accent);
+  color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-soft);
+}
+
+.channelFreq { font-family: var(--font-mono); font-size: 13px; }
+.channelName { font-size: 11px; text-align: center; }
+
+.error { color: var(--danger); font-size: 13px; margin-top: 8px; }
+
+.submit {
+  margin-top: 20px;
+  background: var(--own-bubble);
+  border: none;
+  border-radius: var(--radius-sm);
+  padding: 13px;
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 15px;
+  color: #1a1005;
+  cursor: pointer;
+  transition: transform 0.15s;
+}
+.submit:hover:not(:disabled) { transform: translateY(-1px); }
+.submit:disabled { opacity: 0.4; cursor: not-allowed; }

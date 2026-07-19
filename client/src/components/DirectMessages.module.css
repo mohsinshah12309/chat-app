@@ -1,0 +1,609 @@
+.wrap {
+  flex: 1;
+  display: grid;
+  grid-template-columns: 240px 1fr;
+  overflow: hidden;
+  min-height: 0;
+  position: relative;
+}
+
+.sidebar {
+  background: var(--surface);
+  border-right: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  padding: 14px 10px;
+  overflow-y: auto;
+  min-height: 0;
+}
+
+.searchBox {
+  position: relative;
+  margin-bottom: 16px;
+}
+
+.searchInput {
+  width: 100%;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 10px 12px;
+  color: var(--text);
+  font-family: var(--font-display);
+  font-size: 13px;
+  outline: none;
+}
+.searchInput:focus {
+  border-color: var(--accent);
+}
+
+.results {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  background: var(--surface-raised);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  margin-top: 4px;
+  list-style: none;
+  padding: 4px;
+  z-index: 5;
+  max-height: 180px;
+  overflow-y: auto;
+}
+
+.resultItem {
+  width: 100%;
+  text-align: left;
+  background: transparent;
+  border: none;
+  color: var(--text);
+  padding: 8px 10px;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  font-family: var(--font-display);
+  font-size: 13px;
+}
+.resultItem:hover {
+  background: var(--accent-soft);
+  color: var(--accent);
+}
+
+.convHeader {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: var(--text-muted);
+  padding: 0 4px 8px;
+}
+
+.convList {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.empty {
+  color: var(--text-muted);
+  font-size: 12px;
+  padding: 8px;
+  font-family: var(--font-mono);
+}
+
+.convListItem {
+  display: flex;
+  align-items: stretch;
+  gap: 2px;
+}
+.convListItem .convItem {
+  flex: 1;
+}
+
+.convItem {
+  width: 100%;
+  text-align: left;
+  background: transparent;
+  border: none;
+  color: var(--text-muted);
+  padding: 9px 10px;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  font-family: var(--font-display);
+  font-size: 13px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.convItem:hover {
+  background: var(--surface-raised);
+  color: var(--text);
+}
+.convItemActive {
+  background: var(--accent-soft);
+  color: var(--accent);
+}
+
+.convItemTop {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.convName {
+  font-weight: 500;
+}
+
+.unreadDot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--accent);
+  flex-shrink: 0;
+}
+
+.convPreview {
+  font-size: 11px;
+  color: var(--text-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.convDeleteTrigger {
+  background: transparent;
+  border: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  font-size: 13px;
+  padding: 0 8px;
+  border-radius: var(--radius-sm);
+  opacity: 0;
+  transition:
+    opacity 0.15s ease,
+    background 0.15s ease,
+    color 0.15s ease;
+}
+.convListItem:hover .convDeleteTrigger {
+  opacity: 1;
+}
+.convDeleteTrigger:hover {
+  background: var(--danger);
+  color: #fff;
+}
+
+.convDeleteConfirm {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  width: 100%;
+  padding: 8px 10px;
+  background: var(--surface-raised);
+  border-radius: var(--radius-sm);
+}
+
+.convDeleteConfirmText {
+  flex: 1;
+  font-size: 12px;
+  color: var(--text-muted);
+  font-family: var(--font-display);
+}
+
+.convDeleteConfirmBtn {
+  background: var(--danger);
+  color: #fff;
+  border: none;
+  border-radius: var(--radius-sm);
+  padding: 5px 8px;
+  font-size: 11px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+.convDeleteConfirmBtn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.convDeleteCancelBtn {
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--text-muted);
+  border-radius: var(--radius-sm);
+  padding: 5px 8px;
+  font-size: 11px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.thread {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  min-height: 0;
+  height: 100%;
+}
+
+.mobileBar {
+  display: none;
+}
+
+.placeholder {
+  margin: auto;
+  color: var(--text-muted);
+  font-family: var(--font-mono);
+  font-size: 13px;
+}
+
+.threadHeader {
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--border);
+  font-weight: 600;
+  background: var(--surface);
+}
+
+.messages {
+  flex: 1;
+  overflow-y: auto;
+  padding: 16px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-height: 0;
+}
+
+.bubbleWrap {
+  display: flex;
+  flex-direction: column;
+}
+.rowOwn .bubbleWrap {
+  align-items: flex-end;
+}
+
+.row {
+  display: flex;
+}
+.rowOwn {
+  justify-content: flex-end;
+}
+
+.bubble {
+  position: relative;
+  max-width: 65%;
+  padding: 8px 12px;
+  border-radius: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  font-size: 14px;
+  line-height: 1.4;
+  animation: riseIn 0.15s ease;
+}
+
+.bubbleOther {
+  background: var(--other-bubble);
+  border: 1px solid var(--border);
+  border-top-left-radius: 4px;
+  align-self: flex-start;
+}
+.bubbleOwn {
+  background: var(--own-bubble);
+  color: #1a1005;
+  border-top-right-radius: 4px;
+  align-self: flex-end;
+}
+
+.bubblePending {
+  opacity: 0.6;
+}
+
+.replyPreview {
+  border-left: 2px solid currentColor;
+  opacity: 0.75;
+  padding: 2px 8px;
+  margin-bottom: 2px;
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  font-size: 12px;
+}
+.replyAuthor {
+  font-family: var(--font-mono);
+  font-weight: 600;
+}
+.replyText {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 220px;
+}
+
+.hoverActions {
+  position: absolute;
+  top: -14px;
+  right: 6px;
+  display: flex;
+  gap: 4px;
+  opacity: 0;
+  transition: opacity 0.15s ease;
+}
+.rowOwn .hoverActions {
+  right: auto;
+  left: 6px;
+}
+.bubble:hover .hoverActions {
+  opacity: 1;
+}
+
+.actionBtn {
+  background: var(--surface-raised);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  font-size: 11px;
+  padding: 2px 6px;
+  cursor: pointer;
+  color: var(--text);
+}
+.actionBtn:hover {
+  background: var(--accent-soft);
+  color: var(--accent);
+}
+
+.reactionsBar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin: 3px 0 6px;
+  padding: 0 4px;
+}
+.reactionsBarOwn {
+  justify-content: flex-end;
+}
+
+.reactionPill {
+  background: var(--surface-raised);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  font-size: 12px;
+  padding: 1px 7px;
+  cursor: pointer;
+  line-height: 1.6;
+}
+.reactionPill:hover {
+  border-color: var(--accent);
+}
+.reactionPillActive {
+  background: var(--accent-soft);
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.replyBar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 8px 14px;
+  border-top: 1px solid var(--border);
+  background: var(--surface-raised);
+}
+
+.replyBarText {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  min-width: 0;
+}
+.replyBarAuthor {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--accent2);
+  font-weight: 600;
+}
+.replyBarQuote {
+  font-size: 12px;
+  color: var(--text-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.replyBarCancel {
+  background: transparent;
+  border: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  font-size: 14px;
+  padding: 2px 6px;
+  border-radius: var(--radius-sm);
+  flex-shrink: 0;
+}
+.replyBarCancel:hover {
+  background: var(--surface);
+  color: var(--text);
+}
+
+.inputBar {
+  display: flex;
+  gap: 8px;
+  padding: 12px;
+  border-top: 1px solid var(--border);
+  background: var(--surface);
+}
+
+.input {
+  flex: 1;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: 12px 14px;
+  color: var(--text);
+  font-family: var(--font-display);
+  font-size: 14px;
+  outline: none;
+}
+.input:focus {
+  border-color: var(--accent);
+}
+
+.send {
+  width: 44px;
+  border-radius: var(--radius-md);
+  border: none;
+  background: var(--own-bubble);
+  color: #1a1005;
+  font-size: 16px;
+  cursor: pointer;
+}
+.send:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+.scrim {
+  display: none;
+}
+
+/* ---------- Mobile (<=900px): sidebar becomes a slide-out drawer ---------- */
+@media (max-width: 900px) {
+  .wrap {
+    grid-template-columns: 1fr;
+  }
+
+  .sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    width: min(280px, 80vw);
+    transform: translateX(-100%);
+    transition: transform 0.25s ease;
+    z-index: 30;
+    box-shadow: 8px 0 24px rgba(0, 0, 0, 0.4);
+  }
+  .sidebarOpen {
+    transform: translateX(0);
+  }
+
+  .scrim {
+    display: block;
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 20;
+  }
+
+  .mobileBar {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 14px;
+    border-bottom: 1px solid var(--border);
+    background: var(--surface);
+  }
+
+  .mobileMenuBtn {
+    background: var(--surface-raised);
+    border: 1px solid var(--border);
+    color: var(--text);
+    border-radius: var(--radius-sm);
+    width: 32px;
+    height: 32px;
+    font-family: var(--font-mono);
+    cursor: pointer;
+    flex-shrink: 0;
+  }
+
+  .mobileBarTitle {
+    font-weight: 600;
+    font-size: 14px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  /* threadHeader duplicates the partner name already shown in mobileBar */
+  .threadHeader {
+    display: none;
+  }
+
+  .bubble {
+    max-width: 80%;
+  }
+}
+
+/* ---------- Small phones: tighten spacing further ---------- */
+@media (max-width: 480px) {
+  .messages {
+    padding: 12px 14px;
+  }
+  .bubble {
+    max-width: 86%;
+    font-size: 13px;
+  }
+  .inputBar {
+    padding: 10px;
+  }
+  .replyBarQuote,
+  .replyPreview .replyText {
+    max-width: 160px;
+  }
+}
+
+/* Add to DirectMessages.module.css. Replace the existing standalone .time
+   rule with this — .time now sits inside .metaRow alongside the ticks
+   instead of being aligned on its own. */
+
+.metaRow {
+  align-self: flex-end;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.time {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  opacity: 0.6;
+}
+
+.ticks {
+  font-size: 11px;
+  line-height: 1;
+  opacity: 0.6;
+  letter-spacing: -1px; /* tightens the double-tick glyph pair */
+}
+
+.ticksRead {
+  color: #34b7f1; /* WhatsApp's signature "read" blue */
+  opacity: 1;
+}
+
+.rateLimitBanner {
+  background: #7c4a03;
+  color: #fff;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  text-align: center;
+  padding: 6px 10px;
+}
+
+.threadHeader {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.encryptedBadge {
+  font-size: 11px;
+  font-family: var(--font-mono);
+  color: var(--text-muted);
+  background: var(--surface-raised);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  padding: 2px 8px;
+  font-weight: 400;
+  cursor: default;
+}

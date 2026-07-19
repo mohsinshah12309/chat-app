@@ -1,0 +1,85 @@
+.wrap {
+  display: flex;
+  flex-direction: column;
+  border-top: 1px solid var(--border);
+  background: var(--surface);
+}
+
+.replyBar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 8px 14px;
+  border-bottom: 1px solid var(--border);
+  background: var(--surface-raised);
+}
+
+.replyBarText { display: flex; flex-direction: column; gap: 1px; min-width: 0; }
+.replyBarAuthor { font-family: var(--font-mono); font-size: 11px; color: var(--accent2); font-weight: 600; }
+.replyBarQuote { font-size: 12px; color: var(--text-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+.replyBarCancel {
+  background: transparent;
+  border: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  font-size: 14px;
+  padding: 2px 6px;
+  border-radius: var(--radius-sm);
+  flex-shrink: 0;
+}
+.replyBarCancel:hover { background: var(--surface); color: var(--text); }
+
+.bar { display: flex; gap: 8px; padding: 12px; }
+
+.input {
+  flex: 1;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: 12px 14px;
+  color: var(--text);
+  font-family: var(--font-display);
+  font-size: 14px;
+  outline: none;
+  transition: border-color 0.2s;
+}
+.input:focus { border-color: var(--accent); }
+
+.send {
+  width: 44px;
+  border-radius: var(--radius-md);
+  border: none;
+  background: var(--own-bubble);
+  color: #1a1005;
+  font-size: 16px;
+  cursor: pointer;
+  transition: transform 0.15s, opacity 0.2s;
+  flex-shrink: 0;
+}
+.send:hover:not(:disabled) { transform: translateY(-2px); }
+.send:disabled { opacity: 0.35; cursor: not-allowed; }
+
+@media (max-width: 480px) {
+  .bar { padding: 10px; gap: 6px; }
+  .input { padding: 10px 12px; font-size: 16px; } /* 16px avoids iOS Safari auto-zoom on focus */
+  .send { width: 40px; }
+}
+
+
+.micBtn {
+  width: 44px;
+  border-radius: var(--radius-md);
+  border: none;
+  background: var(--surface-raised);
+  color: var(--text);
+  font-size: 16px;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+.micBtn:hover { background: var(--accent-soft); }
+
+@media (max-width: 480px) {
+  .micBtn { width: 40px; }
+}
