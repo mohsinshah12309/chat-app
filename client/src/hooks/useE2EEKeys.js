@@ -15,44 +15,59 @@ import { api } from "../lib/api";
 export function useE2EEKeys(username) {
   const [privateKey, setPrivateKey] = useState(null);
   const [ready, setReady] = useState(false);
-  const didRun = useRef(false);
+  const activeUserRef = useRef(null);
 
   useEffect(() => {
-    if (!username || didRun.current) return;
-    didRun.current = true;
+    if (!username) {
+      setPrivateKey(null);
+      setReady(false);
+      activeUserRef.current = null;
+      return;
+    }
+
+    if (activeUserRef.current === username) return;
+    activeUserRef.current = username;
+    setReady(false);
 
     (async () => {
       try {
         let jwk = getStoredPrivateKeyJwk(username);
-        let needsUpload = false;
+        let publicKeyString = null;
 
         if (!jwk) {
           const keyPair = await generateKeyPair();
           jwk = await exportPrivateKey(keyPair.privateKey);
           storePrivateKeyJwk(username, jwk);
-          needsUpload = true;
-        }
-
-        const importedPrivateKey = await importPrivateKey(jwk);
-        setPrivateKey(importedPrivateKey);
-
-        if (needsUpload) {
-          // An EC private JWK is just the public JWK plus the `d` component
-          // (the private scalar). Stripping `d` gives us the public JWK
-          // directly, no need to regenerate or re-derive anything.
-          const publicJwk = { ...jwk };
-          delete publicJwk.d;
-          publicJwk.key_ops = [];
-
-          const publicKey = await crypto.subtle.importKey(
+          publicKeyString = await exportPublicKey(keyPair.publicKey);
+        } else {
+          // Derive public key from stored private JWK
+          const publicJwk = {
+            kty: jwk.kty || "EC",
+            crv: jwk.crv || "P-256",
+            x: jwk.x,
+            y: jwk.y,
+            ext: true,
+          };
+          const pubKey = await crypto.subtle.importKey(
             "jwk",
             publicJwk,
             { name: "ECDH", namedCurve: "P-256" },
             true,
             []
           );
-          const publicKeyString = await exportPublicKey(publicKey);
-          await api.setPublicKey(publicKeyString);
+          publicKeyString = await exportPublicKey(pubKey);
+        }
+
+        const importedPrivateKey = await importPrivateKey(jwk);
+        setPrivateKey(importedPrivateKey);
+
+        // Always ensure the server has this browser's matching public key in MongoDB
+        if (publicKeyString) {
+          try {
+            await api.setPublicKey(publicKeyString);
+          } catch (uploadErr) {
+            console.warn("Could not sync public key to server:", uploadErr.message);
+          }
         }
 
         setReady(true);

@@ -6,10 +6,13 @@ import ChatRoom from "./components/ChatRoom";
 import DirectMessages from "./components/DirectMessages";
 import AdminPanel from "./components/AdminPanel";
 import useChatSocket from "./hooks/useChatSocket";
+import { useE2EEKeys } from "./hooks/useE2EEKeys";
 import "./index.css";
 
 function Dashboard() {
   const { username, isAdmin, logout } = useAuth();
+  // Ensure encryption keys and public key sync start immediately upon login
+  useE2EEKeys(username);
   const [tab, setTab] = useState("rooms");
   const [joined, setJoined] = useState(false);
   const chat = useChatSocket();

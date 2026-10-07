@@ -44,14 +44,22 @@ export async function exportPublicKey(publicKey) {
   return JSON.stringify(jwk);
 }
 
-export async function importPublicKey(jwkString) {
-  const jwk = JSON.parse(jwkString);
+export async function importPublicKey(input) {
+  const jwk = typeof input === "string" ? JSON.parse(input) : input;
+  // Ensure only valid ECDH public JWK fields are passed to prevent browser DataError
+  const cleanJwk = {
+    kty: jwk.kty || "EC",
+    crv: jwk.crv || CURVE,
+    x: jwk.x,
+    y: jwk.y,
+    ext: true,
+  };
   return crypto.subtle.importKey(
     "jwk",
-    jwk,
+    cleanJwk,
     { name: "ECDH", namedCurve: CURVE },
     true,
-    [] // a public key is only ever used as the "other party" in deriveKey, no usages of its own
+    [] // ECDH public key usage must be empty
   );
 }
 
@@ -68,16 +76,28 @@ export async function deriveSharedKey(myPrivateKey, theirPublicKey) {
 }
 
 function toBase64(buffer) {
-  return btoa(String.fromCharCode(...new Uint8Array(buffer)));
+  const bytes = new Uint8Array(buffer);
+  let binary = "";
+  const chunkSize = 8192;
+  for (let i = 0; i < bytes.length; i += chunkSize) {
+    binary += String.fromCharCode.apply(null, bytes.subarray(i, i + chunkSize));
+  }
+  return btoa(binary);
 }
 
 function fromBase64(base64) {
-  return Uint8Array.from(atob(base64), (c) => c.charCodeAt(0));
+  const binary = atob(base64);
+  const bytes = new Uint8Array(binary.length);
+  for (let i = 0; i < binary.length; i++) {
+    bytes[i] = binary.charCodeAt(i);
+  }
+  return bytes;
 }
 
 // Returns { cipherText, iv } — both base64 strings, safe to store as plain
 // String fields in MongoDB and send over Socket.io as JSON.
 export async function encryptText(sharedKey, plaintext) {
+  if (!sharedKey) throw new Error("Encryption key is required.");
   const iv = crypto.getRandomValues(new Uint8Array(12)); // AES-GCM standard IV size
   const encoded = new TextEncoder().encode(plaintext);
 
@@ -94,6 +114,9 @@ export async function encryptText(sharedKey, plaintext) {
 }
 
 export async function decryptText(sharedKey, cipherText, iv) {
+  if (!sharedKey) throw new Error("Decryption key is required.");
+  if (!cipherText || !iv) throw new Error("Ciphertext and IV are required.");
+
   const ciphertextBuffer = fromBase64(cipherText);
   const ivBuffer = fromBase64(iv);
 

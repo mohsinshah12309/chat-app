@@ -79,47 +79,59 @@ function DirectMessages() {
   useEffect(() => { activePartnerRef.current = activePartner; }, [activePartner]);
 
   const publicKeyCacheRef = useRef(new Map());
-  // Caches the PROMISE, not just the resolved key — this is the fix for a
-  // real bug: when decrypting many history messages in parallel via
-  // Promise.all, they'd all see an empty cache at the same instant (since
-  // none had finished yet) and each independently re-fetch the public key
-  // and re-derive the shared key. Caching the promise means the first call
-  // kicks off the derivation and every concurrent call just awaits that
-  // same promise instead of duplicating the work.
   const sharedKeyPromiseCacheRef = useRef(new Map()); // username -> Promise<CryptoKey>
 
+  // Invalidate cached shared keys whenever our privateKey changes
+  useEffect(() => {
+    sharedKeyPromiseCacheRef.current.clear();
+  }, [privateKey]);
+
   const getSharedKeyForPartner = useCallback((partner) => {
+    if (!partner) return Promise.resolve(null);
+
     if (sharedKeyPromiseCacheRef.current.has(partner)) {
       return sharedKeyPromiseCacheRef.current.get(partner);
     }
 
     const promise = (async () => {
-      if (!privateKey) return null;
+      if (!privateKey) {
+        throw new Error("Private key not ready yet");
+      }
 
       let publicKeyString = publicKeyCacheRef.current.get(partner);
       if (!publicKeyString) {
-        const { publicKey } = await api.getPublicKey(partner);
-        publicKeyString = publicKey;
+        const res = await api.getPublicKey(partner);
+        publicKeyString = res.publicKey;
+        if (!publicKeyString) {
+          throw new Error(`User ${partner} has not uploaded an encryption key yet.`);
+        }
         publicKeyCacheRef.current.set(partner, publicKeyString);
       }
 
       const theirPublicKey = await importPublicKey(publicKeyString);
-      return deriveSharedKey(privateKey, theirPublicKey);
+      return await deriveSharedKey(privateKey, theirPublicKey);
     })();
+
+    // On failure, delete from cache so retries can succeed
+    promise.catch(() => {
+      sharedKeyPromiseCacheRef.current.delete(partner);
+    });
 
     sharedKeyPromiseCacheRef.current.set(partner, promise);
     return promise;
   }, [privateKey]);
 
   const decryptMessage = useCallback(async (msg, partner) => {
-    if (msg.type !== "text") return msg;
+    if (!msg || msg.type !== "text") return msg;
+    if (!msg.text || !msg.iv) return msg;
 
     try {
       const sharedKey = await getSharedKeyForPartner(partner);
+      if (!sharedKey) throw new Error("Encryption key unavailable.");
       const plaintext = await decryptText(sharedKey, msg.text, msg.iv);
 
       let replyTo = msg.replyTo;
-      if (replyTo) {
+      if (replyTo && replyTo.text && replyTo.iv) {
         try {
           const replyPlaintext = await decryptText(sharedKey, replyTo.text, replyTo.iv);
           replyTo = { ...replyTo, text: replyPlaintext };
@@ -128,12 +140,61 @@ function DirectMessages() {
         }
       }
 
-      return { ...msg, text: plaintext, replyTo };
+      return {
+        ...msg,
+        text: plaintext,
+        replyTo,
+        rawCipher: msg.text,
+        rawIv: msg.iv,
+        decrypted: true,
+      };
     } catch (err) {
-      console.error("Failed to decrypt message:", err.message);
-      return { ...msg, text: "🔒 Unable to decrypt this message" };
+      console.warn("Failed to decrypt message:", err.message);
+      return {
+        ...msg,
+        text: "🔒 Unable to decrypt this message",
+        rawCipher: msg.text,
+        rawIv: msg.iv,
+        decrypted: false,
+      };
     }
   }, [getSharedKeyForPartner]);
+
+  // If keys become ready later, re-decrypt any pending undecrypted messages
+  useEffect(() => {
+    if (!e2eeReady || !privateKey || !activePartner) return;
+
+    setMessages((prev) => {
+      const hasUndecrypted = prev.some((m) => m.type === "text" && m.decrypted === false && m.rawCipher && m.rawIv);
+      if (!hasUndecrypted) return prev;
+
+      (async () => {
+        try {
+          const sharedKey = await getSharedKeyForPartner(activePartner);
+          if (!sharedKey) return;
+
+          const updated = await Promise.all(
+            prev.map(async (m) => {
+              if (m.type === "text" && m.decrypted === false && m.rawCipher && m.rawIv) {
+                try {
+                  const plaintext = await decryptText(sharedKey, m.rawCipher, m.rawIv);
+                  return { ...m, text: plaintext, decrypted: true };
+                } catch {
+                  return m;
+                }
+              }
+              return m;
+            })
+          );
+          setMessages(updated);
+        } catch (err) {
+          console.warn("Re-decrypt effect failed:", err.message);
+        }
+      })();
+
+      return prev;
+    });
+  }, [e2eeReady, privateKey, activePartner, getSharedKeyForPartner]);
 
   const endRef = useRef(null);
   const hasMounted = useRef(false);
@@ -199,7 +260,11 @@ function DirectMessages() {
               const old = prev[idx];
               if (old.audioUrl?.startsWith("blob:")) URL.revokeObjectURL(old.audioUrl);
               const updated = [...prev];
-              updated[idx] = { ...decrypted, pending: false };
+              const finalText =
+                decrypted.text === "🔒 Unable to decrypt this message" && old.text
+                  ? old.text
+                  : decrypted.text;
+              updated[idx] = { ...decrypted, text: finalText, pending: false };
               return updated;
             }
           }
