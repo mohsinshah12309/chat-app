@@ -212,7 +212,19 @@ function DirectMessages() {
     (async () => {
       try {
         const inbox = await api.getInbox();
-        setConversations(sortByRecent(inbox.map((c) => ({ ...c, unread: false }))));
+        setConversations(
+          sortByRecent(
+            inbox.map((c) => ({
+              ...c,
+              lastText: c.lastText
+                ? c.lastText.startsWith("🎤")
+                  ? c.lastText
+                  : "🔒 Encrypted message"
+                : "",
+              unread: false,
+            }))
+          )
+        );
       } catch {
         // ignore
       } finally {

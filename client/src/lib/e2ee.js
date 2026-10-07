@@ -86,7 +86,12 @@ function toBase64(buffer) {
 }
 
 function fromBase64(base64) {
-  const binary = atob(base64);
+  if (!base64 || typeof base64 !== "string") return new Uint8Array(0);
+  let clean = base64.replace(/-/g, "+").replace(/_/g, "/").trim();
+  while (clean.length % 4 !== 0) {
+    clean += "=";
+  }
+  const binary = atob(clean);
   const bytes = new Uint8Array(binary.length);
   for (let i = 0; i < binary.length; i++) {
     bytes[i] = binary.charCodeAt(i);

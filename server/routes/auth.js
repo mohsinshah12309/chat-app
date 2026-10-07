@@ -106,7 +106,7 @@ router.patch("/public-key", requireAuth, async (req, res) => {
 
 // GET /api/auth/public-key/:username — fetch someone's public key so you can
 // derive a shared encryption key before messaging them.
-router.get("/public-key/:username", requireAuth, async (req, res) => {
+router.get("/public-key/:username", async (req, res) => {
   try {
     const user = await User.findOne({ username: req.params.username }).select("publicKey");
     if (!user || !user.publicKey) {
