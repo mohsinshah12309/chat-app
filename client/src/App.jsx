@@ -1,5 +1,6 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { AuthProvider, useAuth } from "./context/AuthContext";
+import { socket } from "./socket";
 import AuthScreen from "./components/AuthScreen";
 import JoinScreen from "./components/JoinScreen";
 import ChatRoom from "./components/ChatRoom";
@@ -13,6 +14,14 @@ function Dashboard() {
   const { username, isAdmin, logout } = useAuth();
   // Ensure encryption keys and public key sync start immediately upon login
   useE2EEKeys(username);
+
+  // Ensure socket is connected for real-time messaging even before entering a room
+  useEffect(() => {
+    if (username && !socket.connected) {
+      socket.connect();
+    }
+  }, [username]);
+
   const [tab, setTab] = useState("rooms");
   const [joined, setJoined] = useState(false);
   const chat = useChatSocket();

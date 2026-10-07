@@ -209,6 +209,7 @@ function DirectMessages() {
   }, [activePartner]);
 
   useEffect(() => {
+    if (!socket.connected) socket.connect();
     (async () => {
       try {
         const inbox = await api.getInbox();
@@ -386,6 +387,9 @@ function DirectMessages() {
     setDraft("");
     setReplyingTo(null);
 
+    // Ensure socket is connected before emitting
+    if (!socket.connected) socket.connect();
+
     try {
       const sharedKey = await getSharedKeyForPartner(partner);
       if (!sharedKey) {
@@ -409,15 +413,21 @@ function DirectMessages() {
         "dm:send",
         { to: partner, text: cipherText, iv, replyTo: encryptedReplyTo, tempId },
         (res) => {
-          if (!res?.success) {
+          if (res?.success) {
+            setMessages((prev) =>
+              prev.map((m) =>
+                m.tempId === tempId
+                  ? { ...m, ...(res.message || {}), text: plaintext, pending: false }
+                  : m
+              )
+            );
+          } else {
             setMessages((prev) =>
               prev.map((m) => (m.tempId === tempId ? { ...m, pending: false, failed: true } : m))
             );
             setRateLimitWarning(res?.message || "Message failed to send.");
             setTimeout(() => setRateLimitWarning(""), 4000);
           }
-          // On success, the dm:receive echo (handled in the socket effect
-          // above) reconciles this tempId entry — no need to do it here too.
         }
       );
     } catch (err) {
